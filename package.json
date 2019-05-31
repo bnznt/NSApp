@@ -16,6 +16,7 @@
   "dependencies": {
     "nativescript-audio": "^5.0.1",
     "nativescript-vue": "^2.0.0",
+    "simple-youtube-api": "^5.1.1",
     "tns-core-modules": "^5.0.2"
   },
   "devDependencies": {

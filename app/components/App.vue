@@ -1,37 +1,104 @@
 <template>
     <Page>
-        <ActionBar title="Welcome to NativeScript-Vue!"/>
-        <GridLayout columns="*" rows="*">
-            <Label class="message" :text="msg" col="0" row="0"/>
-        </GridLayout>
+      <ActionBar title="Welcome to iTube!"/>
+      <StackLayout backgroundColor="#3c495e">
+        <DockLayout stretchLastChild="true">
+        	<Button dock="bottom" :text="isPlaying ? 'Pause' : 'Play'" @tap="handleBtnClick" style="background: #50B9F7; color: white; margin: 10px 0; height: 150px" />
+        </DockLayout>
+        <ScrollView orientation="vertical">
+	        <StackLayout
+	        	orientation="vertical"
+        	>
+	          <DockLayout
+	          	v-for="item of videoList"
+	          	:key="item.id"
+	          	height="100"
+	          	color="white"
+	          	marginBottom="10"
+	          	@tap="loadAudio(item.id)"
+	          	:stretchLastChild="true"
+          	>
+	          	<Image
+	          		dock="left"
+	          		:src="item.snippet.thumbnails.high.url"
+	          		width="150"
+          		/>
+	          	<Label dock="right" :text="item.snippet.title" padding="0" :textWrap="true" />
+	          </DockLayout>
+					</StackLayout>
+        </ScrollView>
+      </StackLayout>
     </Page>
 </template>
 
 <script>
-	const uri = 'https://r1---sn-8pxuuxa-q5q6.googlevideo.com/videoplayback?id=o-AFbtdp_Pii8hUcobxA5XJKJldYQykl1ImV4lZNgIazPM&itag=18&source=youtube&requiressl=yes&mm=31%2C29&mn=sn-8pxuuxa-q5q6%2Csn-8pxuuxa-nboer&ms=au%2Crdu&mv=m&pl=21&ei=JK3mXLqBNv-A3LUPzeyLsAg&initcwndbps=861250&mime=video%2Fmp4&gir=yes&clen=17022851&ratebypass=yes&dur=210.140&lmt=1540863640460025&mt=1558621351&fvip=1&beids=9466587&c=WEB&txp=5531432&ip=171.248.4.227&ipbits=0&expire=1558643077&sparams=ip%2Cipbits%2Cexpire%2Cid%2Citag%2Csource%2Crequiressl%2Cmm%2Cmn%2Cms%2Cmv%2Cpl%2Cei%2Cinitcwndbps%2Cmime%2Cgir%2Cclen%2Cratebypass%2Cdur%2Clmt&key=yt8&signature=CED7AA69AAD8170569CC57DA05105E8EA30A98EE.779CECF831C252C72772FAF94A907DB1E16A02F4'
+	const listOfItems = [
+		{ id: 1, title: 'Learn NativeScript' },
+		{ id: 2, title: 'Learn NativeScript-Vue' }
+	]
 	import {
       TNSPlayer
   } from "nativescript-audio";
   export default {
     data() {
       return {
-        msg: 'Hello World!'
+        msg: 'Hello World!',
+        isPlaying: false,
+        videoList: []
       }
     },
     created() {
     	const audio = new TNSPlayer();
       this.audio = audio;
-      this.audio
-        .playFromUrl({
-            audioFile: uri // "https://data.chiasenhac.com/dataxx/32/downloads/1932/4/1931243-03357d7e/m4a/Suyt%20Nua%20Thi%20-%20Andiez.m4a",
-        })
+      
+      	
+    },
+    mounted() {
+    	const regionCode = {
+    		1: 'vn',
+    		2: 'kr',
+    		3: 'uk'
+    	}
+    	function getRandomIntInclusive(min = 1, max = 3) {
+			  min = Math.ceil(min);
+			  max = Math.floor(max);
+			  return Math.floor(Math.random() * (max - min + 1)) + min; //The maximum is inclusive and the minimum is inclusive 
+			}
+    	fetch(`https://www.googleapis.com/youtube/v3/videos?key=AIzaSyCEFZFqOJqpQz5NZrU214nQr1yHIuaxDLg&part=snippet&fields=items(id,snippet(title,thumbnails(high)))&regionCode=${regionCode[getRandomIntInclusive()]}&chart=mostPopular&videoCategoryId=10`)
+      	.then(res => res.json())
+      	.then(data => {
+      		this.videoList = data.items
+      	// 	.map(item => ({
+      	// 		id: item.id,
+      	// 		title: item.snippet.title,
+      	// 		thumbnails: item.thumbnails.high.url
+    			// }))
+      	})
+    },
+    methods: {
+    	async handleBtnClick() {
+    		this.isPlaying ? await this.audio.pause() : this.audio.resume();
+    		this.isPlaying = !this.isPlaying;
+    	},
+    	async loadAudio(id) {
+    		this.isPlaying = false;
+    		this.audio.pause();
+    		fetch(`http://192.168.1.2:3000/${id}`)
+    			.then(res => res.json())
+    			.then(data => {
+	      		this.audio.playFromUrl({
+	      			audioFile: data.url
+	      		});
+	      		this.isPlaying = true;
+	      	})
+    	}
     }
   }
 </script>
 
 <style scoped>
     ActionBar {
-        background-color: #53ba82;
+        background-color: #000022;
         color: #ffffff;
     }
 
