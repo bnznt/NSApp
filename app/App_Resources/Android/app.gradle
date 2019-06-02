@@ -3,7 +3,7 @@
 android {
   defaultConfig {  
     generatedDensities = []
-    applicationId = "__PACKAGE__"
+    applicationId = "abc.tmno2tm.xyz"
   }
   aaptOptions {  
     additionalParameters "--no-version-vectors"  

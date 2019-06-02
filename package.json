@@ -5,7 +5,7 @@
   "author": "benznt <tmno2tm@gmail.com>",
   "license": "MIT",
   "nativescript": {
-    "id": "org.nativescript.application",
+    "id": "abc.tmno2tm.xyz",
     "tns-ios": {
       "version": "5.0.0"
     },
@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "nativescript-audio": "^5.0.1",
+    "nativescript-oauth2": "^1.4.3",
     "nativescript-vue": "^2.0.0",
     "simple-youtube-api": "^5.1.1",
     "tns-core-modules": "^5.0.2"

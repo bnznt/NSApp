@@ -2,9 +2,13 @@
     <Page>
       <ActionBar title="Welcome to iTube!"/>
       <StackLayout backgroundColor="#3c495e">
-        <DockLayout stretchLastChild="true">
-        	<Button dock="bottom" :text="isPlaying ? 'Pause' : 'Play'" @tap="handleBtnClick" style="background: #50B9F7; color: white; margin: 10px 0; height: 150px" />
-        </DockLayout>
+        <!-- <DockLayout stretchLastChild="true">
+        </DockLayout> -->
+        <StackLayout class="p-20">    
+          <Button dock="bottom" :text="isPlaying ? 'Pause' : 'Play'" @tap="handleBtnClick" class="btn-primary" />
+          <Button text="Login" @tap="onLoginTap()" class="btn btn-primary btn-active"/>
+          <Button text="Logout" @tap="onLogoutTap()" class="btn btn-primary btn-active"/>
+        </StackLayout>
         <ScrollView orientation="vertical">
 	        <StackLayout
 	        	orientation="vertical"
@@ -32,6 +36,7 @@
 </template>
 
 <script>
+  var auth_service_1 = require("../auth-service");
 	const listOfItems = [
 		{ id: 1, title: 'Learn NativeScript' },
 		{ id: 2, title: 'Learn NativeScript-Vue' }
@@ -44,20 +49,19 @@
       return {
         msg: 'Hello World!',
         isPlaying: false,
-        videoList: []
+        videoList: [],
+        accessToken: 'XYZ ABC'
       }
     },
     created() {
     	const audio = new TNSPlayer();
       this.audio = audio;
-      
-      	
     },
     mounted() {
     	const regionCode = {
     		1: 'vn',
     		2: 'kr',
-    		3: 'uk'
+    		3: 'us'
     	}
     	function getRandomIntInclusive(min = 1, max = 3) {
 			  min = Math.ceil(min);
@@ -91,7 +95,30 @@
 	      		});
 	      		this.isPlaying = true;
 	      	})
-    	}
+    	},
+      onLoginTap() {
+        auth_service_1.tnsOauthLogin("google", tokenResult => {
+          this.accessToken = tokenResult.accessToken;
+          fetch('https://www.googleapis.com/youtube/v3/playlists?part=snippet&maxResults=5&mine=true&key=AIzaSyCEFZFqOJqpQz5NZrU214nQr1yHIuaxDLg',
+            {
+              headers: {
+                'Authorization': `Bearer ${tokenResult.accessToken}`,
+                'Accept': 'application/json'
+              }
+            })
+          .then(res => {
+            console.log(res.status)
+            return res.json();
+          })
+          .then(data => {
+            console.log(data);
+            this.videoList = data.items;
+          })
+        })
+      },
+      onLogoutTap() {
+        auth_service_1.tnsOauthLogout();
+      }
     }
   }
 </script>
@@ -101,11 +128,13 @@
         background-color: #000022;
         color: #ffffff;
     }
-
     .message {
         vertical-align: center;
         text-align: center;
         font-size: 20;
         color: #333333;
+    }
+    .btn-primary {
+      background: #50B9F7; color: white; margin: 10px 0; height: 150px
     }
 </style>

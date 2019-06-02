@@ -48,5 +48,16 @@
 			<string>audio</string>
 			<string>fetch</string>
 		</array>
+		<key>CFBundleURLTypes</key>
+	    <array>
+	        <dict>
+	            <key>CFBundleTypeRole</key>
+	            <string>Editor</string>
+	            <key>CFBundleURLSchemes</key>
+	            <array>
+	                <string>com.googleusercontent.apps.77327077496-i05f79631hr06csi3si3hli2f4eptm2s</string>
+	            </array>
+	        </dict>
+	    </array>
 	</dict>
 </plist>
