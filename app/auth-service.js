@@ -56,7 +56,6 @@ async function tnsOauthLogin(providerType, callback) {
     }
     else {
       console.log("back to main page with access token: ");
-      console.log(JSON.stringify(tokenResult));
       callback(tokenResult);
     }
   });

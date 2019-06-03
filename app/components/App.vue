@@ -1,50 +1,13 @@
 <template>
   <Page>
     <ActionBar title="iTube" />
-    <!-- <TabView>
-      <TabViewItem title="Playground">
-        <StackLayout
-          style="background: #1C2541"
-        >
-          <Button dock="bottom" :text="isPlaying ? 'Pause' : 'Play'" @tap="handleBtnClick" class="btn-primary" />
-          <ScrollView orientation="vertical">
-            <StackLayout
-              orientation="vertical"
-            >
-              <FlexboxLayout
-                v-for="item of videoList"
-                :key="item.id"
-                height="100"
-                color="white"
-                marginBottom="10"
-                @tap="loadAudio(item.id)"
-                padding="0 10"
-              >
-                <Image
-                  :src="item.snippet.thumbnails.high.url"
-                  width="150"
-                  marginRight="10"
-                />
-                <Label :text="item.snippet.title" padding="0" :textWrap="true" width="200" fontSize="10" />
-              </FlexboxLayout>
-            </StackLayout>
-          </ScrollView>
-        </StackLayout>
-      </TabViewItem>
-      <TabViewItem title="Account">
-        <StackLayout class="p-20">
-          <Button text="Login" @tap="onLoginTap()" class="btn btn-primary btn-active"/>
-          <Button text="Logout" @tap="onLogoutTap()" class="btn btn-primary btn-active"/>
-        </StackLayout>
-      </TabViewItem>
-    </TabView> -->
-    <StackLayout>
+    <StackLayout backgroundColor="#1C2541">
       <Button text="Sign in" @tap="onLoginTap" class="btn btn-primary" v-if="!accessToken" />
       <StackLayout v-if="accessToken">
-        <StackLayout padding="0 10">
+        <FlexboxLayout padding="0 10">
           <Label text="BenZ" fontSize="50" marginBottom="5" />
-          <Button text="Sign out" class="btn btn-primary" />
-        </StackLayout>
+          <Button text="Sign out" class="btn btn-primary" @tap="onLogoutTap" />
+        </FlexboxLayout>
         <ScrollView>
           <StackLayout>
             <FlexboxLayout
@@ -57,7 +20,8 @@
                 props: {
                   playlistTitle: item.snippet.title,
                   playlistId: item.id,
-                  accessToken
+                  accessToken,
+                  audio
                 }
               })"
               padding="0 10"
@@ -78,54 +42,36 @@
 
 <script>
   var auth_service_1 = require("../auth-service");
-	const listOfItems = [
-		{ id: 1, title: 'Learn NativeScript' },
-		{ id: 2, title: 'Learn NativeScript-Vue' }
-	]
-	import {
-      TNSPlayer
-  } from "nativescript-audio";
   import PlaylistItem from './PlaylistItem';
+  const audio = require('nativescript-audio');
   export default {
     data() {
       return {
         isPlaying: false,
         playlist: [],
         accessToken: '',
-        user: {},
         PlaylistItem
       }
     },
     created() {
-    	const audio = new TNSPlayer();
-      this.audio = audio;
-    },
-    mounted() {
-   //  	const regionCode = {
-   //  		1: 'vn',
-   //  		2: 'kr',
-   //  		3: 'us'
-   //  	}
-   //  	function getRandomIntInclusive(min = 1, max = 3) {
-			//   min = Math.ceil(min);
-			//   max = Math.floor(max);
-			//   return Math.floor(Math.random() * (max - min + 1)) + min; //The maximum is inclusive and the minimum is inclusive 
-			// }
-   //  	fetch(`https://www.googleapis.com/youtube/v3/videos?key=AIzaSyCEFZFqOJqpQz5NZrU214nQr1yHIuaxDLg&part=snippet&fields=items(id,snippet(title,thumbnails(high)))&regionCode=${regionCode[getRandomIntInclusive()]}&chart=mostPopular&videoCategoryId=10`)
-   //    	.then(res => res.json())
-   //    	.then(data => {
-   //    		this.playlist = data.items
-   //    	})
+      const player = new audio.TNSPlayer();
+      player
+      .playFromUrl({
+        audioFile: 'https://data.chiasenhac.com/dataxx/00/downloads/1822/1/1821295-2be93cf2/320/Em%20Gai%20Mua%20-%20Huong%20Tram.mp3'
+      })
+      .then(function(res) {
+        console.log('/* AUDIO LOGGG */');
+      })
     },
     methods: {
     	async handleBtnClick() {
     		this.isPlaying ? await this.audio.pause() : this.audio.resume();
     		this.isPlaying = !this.isPlaying;
     	},
-    	async loadAudio(id) {
+    	async play(id) {
     		this.isPlaying = false;
     		this.audio.pause();
-    		fetch(`http://192.168.1.2:3000/${id}`)
+    		fetch(`http://192.168.1.4:3000/video/${id}`)
     			.then(res => res.json())
     			.then(data => {
 	      		this.audio.playFromUrl({
@@ -137,20 +83,25 @@
       onLoginTap() {
         auth_service_1.tnsOauthLogin("google", async tokenResult => {
           this.accessToken = tokenResult.accessToken;
-          console.log(tokenResult.accessToken);
-          const res = await fetch('https://www.googleapis.com/youtube/v3/playlists?part=snippet&maxResults=5&mine=true&key=AIzaSyCEFZFqOJqpQz5NZrU214nQr1yHIuaxDLg',
+          console.log(this.accessToken);
+          const data = await fetch(
+            'https://www.googleapis.com/youtube/v3/playlists?part=snippet&maxResults=5&mine=true&key=AIzaSyCEFZFqOJqpQz5NZrU214nQr1yHIuaxDLg',
             {
               headers: {
                 'Authorization': `Bearer ${tokenResult.accessToken}`,
                 'Accept': 'application/json'
               }
-            });
-          const data = res.json();
+            }
+          )
+          .then(res => res.json())
+          .then(data => data);
+          console.log(data);
           this.playlist = data.items;
         })
       },
       onLogoutTap() {
         auth_service_1.tnsOauthLogout();
+        this.accessToken = '';
       }
     }
   }
