@@ -43,7 +43,9 @@
 <script>
   var auth_service_1 = require("../auth-service");
   import PlaylistItem from './PlaylistItem';
-  const audio = require('nativescript-audio');
+  import {
+      TNSPlayer
+  } from "../nativescript-audio";
   export default {
     data() {
       return {
@@ -54,14 +56,14 @@
       }
     },
     created() {
-      const player = new audio.TNSPlayer();
-      player
-      .playFromUrl({
-        audioFile: 'https://data.chiasenhac.com/dataxx/00/downloads/1822/1/1821295-2be93cf2/320/Em%20Gai%20Mua%20-%20Huong%20Tram.mp3'
-      })
-      .then(function(res) {
-        console.log('/* AUDIO LOGGG */');
-      })
+      this.audio = new TNSPlayer();
+      // this.audio
+      // .playFromUrl({
+      //   audioFile: 'https://data.chiasenhac.com/dataxx/00/downloads/1822/2/1821295-2be93cf2/320/Em%20Gai%20Mua%20-%20Huong%20Tram.mp3'
+      // })
+      // .then(function(res) {
+      //   console.log('/* AUDIO LOGGG */');
+      // })
     },
     methods: {
     	async handleBtnClick() {
@@ -71,7 +73,7 @@
     	async play(id) {
     		this.isPlaying = false;
     		this.audio.pause();
-    		fetch(`http://192.168.1.4:3000/video/${id}`)
+    		fetch(`http://192.168.1.2:3000/video/${id}`)
     			.then(res => res.json())
     			.then(data => {
 	      		this.audio.playFromUrl({

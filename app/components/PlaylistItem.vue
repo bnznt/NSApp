@@ -18,7 +18,7 @@
 	          color="white"
 	          marginBottom="10"
 	          padding="0 10"
-	          @tap="$emit('play', item.contentDetails.videoId)"
+	          @tap="loadAudio(item.contentDetails.videoId)"
 	        >
 	          <Image
 	            :src="item.snippet.thumbnails.high.url"
@@ -51,7 +51,8 @@
 			playlistTitle: {
 				type: String
 			},
-			accessToken: String
+			accessToken: String,
+			audio: Object
 		},
 		async mounted() {
 			const data = await fetch(
@@ -68,13 +69,12 @@
 			.then(res => res.json())
 			.then(data => data);
 			this.videoList = data.items;
-			this.audio = new TNSPlayer();
 		},
 		methods: {
 			async loadAudio(id) {
     		this.isPlaying = false;
-    		this.audio.pause();
-    		fetch(`http://192.168.1.4:3000/video/${id}`)
+    		await this.audio.pause();
+    		fetch(`http://192.168.1.2:3000/video/${id}`)
     			.then(res => res.json())
     			.then(data => {
     				console.log(data.url);
@@ -89,7 +89,7 @@
 	      	})
     	},
     	playBtnTap() {
-    		this.isPlaying ? this.audio.pause() : this.audio.resume();
+    		this.isPlaying ? await this.audio.pause() : this.audio.resume();
     		this.isPlaying = !this.isPlaying;
     	}
 		}

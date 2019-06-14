@@ -3,6 +3,7 @@ import App from './components/App'
 
 // Prints Vue logs when --env.production is *NOT* set while building
 Vue.config.silent = (TNS_ENV === 'production');
+let setCategoryRes = AVAudioSession.sharedInstance().setCategoryWithOptionsError(AVAudioSessionCategoryPlayAndRecord, AVAudioSessionCategoryOptions.DefaultToSpeaker);
 
 var auth_service_1 = require("./auth-service");
 auth_service_1.configureOAuthProviders();

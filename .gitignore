@@ -3,6 +3,7 @@
 
 # NPM
 node_modules
+app/nativescript-audio
 
 # NativeScript application
 hooks
